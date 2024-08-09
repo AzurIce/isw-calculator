@@ -1,7 +1,7 @@
 {
   "productName": "isw-calculator",
   "version": "0.0.0",
-  "identifier": "com.tauri.dev",
+  "identifier": "com.azurice.isw-calculator",
   "build": {
     "beforeDevCommand": "pnpm dev",
     "devUrl": "http://localhost:1420",
