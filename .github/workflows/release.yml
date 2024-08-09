@@ -93,6 +93,8 @@ jobs:
         run: pnpm install
 
       - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: "src-tauri -> target"
       
       - name: Build binaries
         run: pnpm tauri build -- --locked --target ${{ matrix.target }}
