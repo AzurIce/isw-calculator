@@ -39,75 +39,28 @@ jobs:
         env:
           OUTPUT: CHANGES.md
           GITHUB_REPO: ${{ github.repository }}
-  create-release:
-    needs: changelog
-    permissions:
-      contents: write
-    runs-on: ubuntu-latest
-    outputs:
-      release_id: ${{ steps.create-release.outputs.result }}
-
-    steps:
-      - uses: actions/checkout@v4
-      - name: Initialize version
-        shell: bash
-        run: |
-          if [[ $GITHUB_REF == refs/tags/* ]]; then
-            echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
-          fi
-
-      - name: setup node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: get version
-        run: echo "PACKAGE_VERSION=$(node -p "require('./package.json').version")" >> $GITHUB_ENV
-
-      - name: create release
-        id: create-release
-        uses: actions/github-script@v6
-        if: env.preview == 'false'
-        with:
-          script: |
-            const { data } = await github.rest.repos.createRelease({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              tag_name: `${{ github.ref_name }}`,
-              name: `Release v${{ env.version }}`,
-              body: `${{ needs.changelog.outputs.release_body }}`,
-              draft: false,
-              prerelease: ${{ env.pre-release }}
-            })
-            return data.id
-      - name: Upload binaries as artifact
-        uses: actions/upload-artifact@v4
-        if: env.preview == 'true'
-        with:
-          name: release
-          path: dist/*
   build-binaries:
     name: Build binaries
-    needs: create-release
     permissions: 
       contents: write
     strategy:
       fail-fast: false
       matrix:
+        build: [x86_64-linux, x86_64-windows, aarch64-macos]
         include:
-          - platform: 'macos-latest' # for Arm based macs (M1 and above).
-            args: '--target aarch64-apple-darwin'
-          - platform: 'macos-latest' # for Intel based macs.
-            args: '--target x86_64-apple-darwin'
-          - platform: 'ubuntu-22.04' # for Tauri v1 you could replace this with ubuntu-20.04.
-            args: ''
-          - platform: 'windows-latest'
-            args: ''
-    runs-on: ${{ matrix.platform }}
+          - build: x86_64-linux
+            os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+          - build: x86_64-windows
+            os: windows-latest
+            target: x86_64-pc-windows-msvc
+          - build: aarch64-macos
+            os: macos-latest
+            target: aarch64-apple-darwin
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4
-
 
       - uses: pnpm/action-setup@v4
         with:
@@ -122,10 +75,10 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
         with:
           # Those targets are only used on macos runners so it's in an `if` to slightly speed up windows and linux builds.
-          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+          targets: ${{ matrix.target }}
       
       - name: install dependencies (ubuntu only)
-        if: matrix.platform == 'ubuntu-22.04' # This must match the platform value defined above.
+        if: matrix.os == 'ubuntu-latest' # This must match the platform value defined above.
         run: |
           sudo apt-get update
           sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
@@ -135,30 +88,58 @@ jobs:
 
       - uses: Swatinem/rust-cache@v2
       
-      - uses: tauri-apps/tauri-action@v0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build binaries
+        run: pnpm tauri build -- --locked --target ${{ matrix.target }}
+
+      - name: Copy binaries
+        shell: bash
+        run: |
+          mkdir -p dist
+          if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
+            cp "src-tauri/target/${{ matrix.target }}/release/isw-calculator.exe" "dist/isw-calculator.exe"
+          else
+            cp "src-tauri/target/${{ matrix.target }}/release/isw-calculator" "dist/isw-calculator"
+          fi
+      
+      - uses: actions/upload-artifact@v4
         with:
-          releaseId: ${{ needs.create-release.outputs.release_id }}
-          args: ${{ matrix.args }}
+          name: bin-${{ matrix.build }}
+          path: dist
   release:
     name: Release
-    needs: [create-release, build-binaries]
+    needs: [changelog, build-binaries]
     runs-on: ubuntu-latest
-    env:
-      release_id: ${{ needs.create-release.outputs.release_id }}
     steps:
-      - name: publish release
-        id: publish-release
-        uses: actions/github-script@v6
-        env:
-          release_id: ${{ needs.create-release.outputs.release_id }}
+      - name: Checkout sources
+        uses: actions/checkout@v4
+      - name: Initialize version
+        shell: bash
+        run: |
+          if [[ $GITHUB_REF == refs/tags/* ]]; then
+            echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+          fi
+
+      - uses: actions/download-artifact@v4
+      
+      - name: Copy binaries
+        run: |
+          mkdir -p dist
+          cp -r bin-*/* dist/
+
+      - name: Upload binaries to release
+        uses: svenstaro/upload-release-action@v2
+        if: env.preview == 'false'
         with:
-          script: |
-            github.rest.repos.updateRelease({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              release_id: process.env.release_id,
-              draft: false,
-              prerelease: false
-            })
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: dist/*
+          file_glob: true
+          tag: ${{ github.ref_name }}
+          release_name: "Release v${{ env.version }}"
+          body: "${{ needs.changelog.outputs.release_body }}"
+          overwrite: true
+      - name: Upload binaries as artifact
+        uses: actions/upload-artifact@v4
+        if: env.preview == 'true'
+        with:
+          name: release
+          path: dist/*
