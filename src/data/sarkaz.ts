@@ -140,7 +140,7 @@ export const HiddenOperationInfos: { [key: string]: HiddenOperationInfo } = {
   },
   [HiddenOperation.ToysRevenge]: {
     score: 10,
-    emergency_score: 20,
+    emergency_score: 0,
   },
   [HiddenOperation.DuckHighway]: {
     score: 30,
@@ -200,7 +200,7 @@ export const BossOperationInfos: { [key: string]: BossOperationInfo } = {
   },
   [BossOperation.UrgentTeaching]: {
     level: Level.Fifth,
-    score: 40,
+    score: 30,
     chaos_score: 60,
   },
   [BossOperation.Audience]: {
@@ -232,6 +232,11 @@ export enum BannedOperator {
   Phatom = "傀影（特限模组）",
 }
 
+// 3) d) 结算时，若全程未招募干员维什戴尔，则额外获得130分加分；若全程未招募干员逻各
+//       斯、麒麟R夜刀，每未招募一名干员额外获得70分加分；若全程未招募干员莱伊、妮
+//       芙、阿斯卡纶、缄默德克萨斯、乌尔比安、纯烬艾雅法拉时，每未招募一名干员额外获
+//       得40分加分；若全程未招募干员凯尔希、傀影，或招募干员后未使用其α模组，每未
+//       招募一名干员额外获得40分加分；
 export const BannedOperatorInfos: { [key: string]: number } = {
   [BannedOperator.Wisdel]: 160,
 

@@ -216,6 +216,9 @@ function App() {
     }));
   }
 
+  // 3) e) 结算时，若持有超过1件“国王”藏品，从第二件藏品开始每持有一件藏品扣除20分；触
+  //       发“诸王的冠冕”3层效果时，额外扣除40分；若集齐游戏内所有“国王”藏品，额外扣除
+  //       20分；
   const calcKingsCollectibleSum = () => {
     const kingsCollectibleCnt = store.kingsCollectibleRecords.reduce((sum, record) => sum + (record.owned ? 1 : 0), 0);
     const ownedCrown = store.kingsCollectibleRecords.find((record) => record.collectible == KingsCollectible.KingsCrown && record.owned);
@@ -234,26 +237,27 @@ function App() {
 
   /// Others ///
 
+  // 3) f) 结算时，若持有“希望时代的涂鸦”，则每个藏品额外获得3分加分；
   const collectibleScore = () => store.collectible == Collectible.DoodleInTheEraOfHope ? 3 : 0;
   const calcCollectionsScore = () => {
     return store.collectionsCnt * collectibleScore();
   }
 
-  // 2) b) 作战中，每击杀一个隐藏敌人（包括“鸭爵”、“高普尼克”、“流泪小子”与“圆仔”），额外获
+  // 3) a) 作战中，每击杀一个隐藏敌人（包括“鸭爵”、“高普尼克”、“流泪小子”与“圆仔”），额外获
   //       得10分加分；
   const calcHiddenScore = () => {
     return store.killedHiddenCnt * 10;
   }
 
-  // 2) c) 每局游戏有8次刷新节点的机会，若选择蓝图测绘分队，则提升至15次。结算分数时，
-  //       若本局游戏中刷新节点次数超过规定，每超出的一次刷新节点行为额外扣除 50 分。特
-  //       殊地，持有“先知长角”且生效时，将节点刷新为“命运所指”的行为不计入刷新次数；
+  // 3) b) 每局游戏有8次刷新节点的机会，若选择蓝图测绘分队，则提升至15次。结算分数时，
+  //        若本局游戏中刷新节点次数超过规定，每超出的一次刷新节点行为额外扣除50分。特
+  //        殊地，持有“先知长角”且生效时，将节点刷新为“命运所指”的行为不计入刷新次数；
   const maxRefreshCnt = () => store.squad == Squad.BlueprintSurveyingSquad ? 15 : 8;
   const calcRefreshScore = () => {
     return store.refreshCnt > maxRefreshCnt() ? (store.refreshCnt - maxRefreshCnt()) * -50 : 0;
   }
 
-  // 2) d) 每局游戏的源石锭余额减少总数超过40时，每额外减少1源石锭余额，额外扣除50分；
+  // 3) c) 每局游戏的源石锭余额减少总数超过40时，每额外减少1源石锭余额，额外扣除50分；
   const calcWithdrawScore = () => {
     return store.withdrawCnt > 40 ? (40 - store.withdrawCnt) * -50 : 0;
   }
