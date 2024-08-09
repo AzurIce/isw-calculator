@@ -233,7 +233,7 @@ export enum BannedOperator {
 }
 
 export const BannedOperatorInfos: { [key: string]: number } = {
-  [BannedOperator.Wisdel]: 130,
+  [BannedOperator.Wisdel]: 160,
 
   [BannedOperator.Logos]: 70,
   [BannedOperator.Yato2]: 70,
