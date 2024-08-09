@@ -46,7 +46,7 @@ export const AddBossRecordModal: Component<{
                         chaos: true
                       } as BossOperationRecord);
                       onClose();
-                    }}>{operation}（紧急）</Button>
+                    }}>{operation}（混乱）</Button>
                   </Show>
                 </>}</For>
               </Box>
