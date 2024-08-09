@@ -1,5 +1,16 @@
 /* @refresh reload */
 import { render } from "solid-js/web";
 import App from "./App";
+import { createTheme, ThemeProvider } from "@suid/material";
 
-render(() => <App />, document.getElementById("root") as HTMLElement);
+const theme = createTheme({
+  palette: {
+    secondary: {
+      main: "#b6b6b6"
+    }
+  }
+})
+
+render(() => <ThemeProvider theme={theme}>
+  <App />
+</ThemeProvider>, document.getElementById("root") as HTMLElement);
