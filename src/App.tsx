@@ -220,7 +220,7 @@ function App() {
     const ownedCrown = store.kingsCollectibleRecords.find((record) => record.collectible == KingsCollectible.KingsCrown && record.owned);
     let score = 0;
     if (kingsCollectibleCnt > 1) {
-      score = kingsCollectibleCnt * -20;
+      score = (kingsCollectibleCnt - 1) * -20;
     }
     if (kingsCollectibleCnt >= 3 && ownedCrown) {
       score -= 40;
