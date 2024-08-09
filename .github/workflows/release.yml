@@ -94,17 +94,17 @@ jobs:
       - name: Copy binaries
         shell: bash
         run: |
-          mkdir -p dist
+          mkdir -p artifacts
           if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
-            cp "src-tauri/target/${{ matrix.target }}/release/isw-calculator.exe" "dist/isw-calculator.exe"
+            cp "src-tauri/target/${{ matrix.target }}/release/isw-calculator.exe" "artifacts/isw-calculator-${{ env.version }}-${{ matrix.build }}.exe"
           else
-            cp "src-tauri/target/${{ matrix.target }}/release/isw-calculator" "dist/isw-calculator"
+            cp "src-tauri/target/${{ matrix.target }}/release/isw-calculator" "artifacts/isw-calculator-${{ env.version }}-${{ matrix.build }}"
           fi
       
       - uses: actions/upload-artifact@v4
         with:
-          name: bin-${{ matrix.build }}
-          path: dist
+          name: bin-${{ env.version }}-${{ matrix.build }}
+          path: artifacts
   release:
     name: Release
     needs: [changelog, build-binaries]
@@ -123,15 +123,15 @@ jobs:
       
       - name: Copy binaries
         run: |
-          mkdir -p dist
-          cp -r bin-*/* dist/
+          mkdir -p upload_artifacts
+          cp -r bin-*/* upload_artifacts/
 
       - name: Upload binaries to release
         uses: svenstaro/upload-release-action@v2
         if: env.preview == 'false'
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: dist/*
+          file: upload_artifacts/*
           file_glob: true
           tag: ${{ github.ref_name }}
           release_name: "Release v${{ env.version }}"
@@ -142,4 +142,4 @@ jobs:
         if: env.preview == 'true'
         with:
           name: release
-          path: dist/*
+          path: upload_artifacts/*
