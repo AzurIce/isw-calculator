@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.1](https://github.com/BJTUEventCameraSoftwareGroup/event-cam-software/compare/0.1.0..0.1.1) - 2024-08-09
+
+### <!-- 0 -->🎈 Features
+
+
+- Update Wisdel's score to 160 - ([08e383d](https://github.com/BJTUEventCameraSoftwareGroup/event-cam-software/commit/08e383d7ccb131747f2a581970e54c25d244855b))
+
+### <!-- 1 -->🕷️ Bug Fixes
+
+
+- Adjust default and min window size - ([74d1738](https://github.com/BJTUEventCameraSoftwareGroup/event-cam-software/commit/74d1738c14fb10eea0e8591d6bea13445e342e56))
+- Typo in AddBossRecordModal - ([b53523b](https://github.com/BJTUEventCameraSoftwareGroup/event-cam-software/commit/b53523b85529ea0a2304489006fd146868b33cff))
+
+### <!-- 5 -->🎨 Styling
+
+
+- Modified kingsCollectible button color to red - ([dd83d2c](https://github.com/BJTUEventCameraSoftwareGroup/event-cam-software/commit/dd83d2cfdbe763cca74b5e39e39b85ac09e42c04))
+
+### <!-- 7 -->⚙️ Miscellaneous Tasks
+
+
+- Update workflow node-version to 20 - ([bd9f9dc](https://github.com/BJTUEventCameraSoftwareGroup/event-cam-software/commit/bd9f9dca05652e214f95d895cef66419f73d1a8b))
+- Build manually - ([24c0194](https://github.com/BJTUEventCameraSoftwareGroup/event-cam-software/commit/24c0194a75cdb0debfa3ffc9f9ba8f4c0f1d46c1))
+- Fix artifacts path - ([60701dc](https://github.com/BJTUEventCameraSoftwareGroup/event-cam-software/commit/60701dc4215fd5e3916b76c610ffe120da2fd5d3))
+- Fix version number - ([147c048](https://github.com/BJTUEventCameraSoftwareGroup/event-cam-software/commit/147c048dca1789fffa6a3211eab7330876749b14))
+
 ## [0.1.0] - 2024-08-09
 
 ### <!-- 0 -->🎈 Features
