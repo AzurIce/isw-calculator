@@ -112,6 +112,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: lts/*
+          cache: 'pnpm'
 
       - name: Install stable toolchain
         uses: dtolnay/rust-toolchain@stable
@@ -126,7 +127,7 @@ jobs:
           sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
 
       - name: install frontend dependencies
-        run: pnpm i
+        run: pnpm install
 
       - uses: Swatinem/rust-cache@v2
       
