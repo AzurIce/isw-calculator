@@ -61,6 +61,12 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4
+      - name: Initialize version
+        shell: bash
+        run: |
+          if [[ $GITHUB_REF == refs/tags/* ]]; then
+            echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+          fi
 
       - uses: pnpm/action-setup@v4
         with:
