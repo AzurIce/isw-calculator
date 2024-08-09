@@ -6,6 +6,7 @@ import { BannedOperator as BannedOperator, BannedOperatorInfos, BossOperation, B
 import { AddOperationRecordModal, EmergencyOperationRecord, HiddenOperationRecord } from "./components/AddOperationRecordModal";
 import { createStore } from "solid-js/store";
 import { AddBossRecordModal, BossOperationRecord } from "./components/AddBossRecordModal";
+import { invoke } from "@tauri-apps/api/core";
 
 type BannedOperatorRecord = {
   operator: BannedOperator,
@@ -119,7 +120,7 @@ function App() {
   const [addOperationRecordModalOpen, setAddOperationRecordModalOpen] = createSignal(false);
   const [addBossRecordModalOpen, setAddBossRecordModalOpen] = createSignal(false);
 
-  const [store, setStore] = createStore<Store>(defaultStoreValue);
+  const [store, setStore] = createStore<Store>({ ...defaultStoreValue });
 
   const addEmergencyRecord = (record: EmergencyOperationRecord) => {
     setStore('emergencyRecords', (operations) => [...operations, record])
@@ -555,8 +556,19 @@ function App() {
             />
           </Box>
           <Typography sx={{ fontSize: "1.5rem" }}>总计：{calcTotalSum()}</Typography>
-          <Box sx={{ display: "flex" }}>
-            <Button variant="contained" onClick={() => { setStore(defaultStoreValue) }}>清零</Button>
+          <Box sx={{ display: "flex", gap: 1 }}>
+            <Button variant="contained" onClick={() => { setStore({ ...defaultStoreValue }) }}>清零</Button>
+            <Button variant="outlined" onClick={async () => {
+              let content = JSON.stringify(store)
+              console.log(content)
+              await invoke("write_json", { content });
+            }}>保存</Button>
+            <Button variant="outlined" onClick={async () => {
+              const content = await invoke<string>("read_json");
+              let data = JSON.parse(content);
+              console.log(data)
+              setStore(data as Store)
+            }}>加载</Button>
           </Box>
         </Card>
       </Box>
