@@ -487,7 +487,7 @@ function App() {
           <Typography variant="h6">国王套</Typography>
           <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
             <For each={store.kingsCollectibleRecords}>{(item) => <>
-              <Button variant="outlined" color={item.owned ? "success" : "secondary"} onClick={() => {
+              <Button variant="outlined" color={item.owned ? "error" : "secondary"} onClick={() => {
                 toggleKingsCollectible(item.collectible)
               }}>
                 {item.collectible}
