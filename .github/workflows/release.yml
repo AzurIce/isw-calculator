@@ -75,7 +75,7 @@ jobs:
               repo: context.repo.repo,
               tag_name: `${{ github.ref_name }}`,
               name: `Release v${{ env.version }}`,
-              body: '${{ needs.changelog.outputs.release_body }}',
+              body: `${{ needs.changelog.outputs.release_body }}`,
               draft: false,
               prerelease: ${{ env.pre-release }}
             })
