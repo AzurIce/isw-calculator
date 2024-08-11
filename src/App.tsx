@@ -1,6 +1,6 @@
 import { Component, createSignal, For, Match, Show, Switch } from "solid-js";
 import "./App.css";
-import { BottomNavigation, BottomNavigationAction, Box, Button, Card, Checkbox, FormControl, IconButton, InputLabel, MenuItem, Paper, Select, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography, useMediaQuery } from "@suid/material";
+import { BottomNavigation, BottomNavigationAction, Box, Button, Card, Checkbox, FormControl, IconButton, InputLabel, MenuItem, Modal, Paper, Select, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography, useMediaQuery } from "@suid/material";
 
 import { BannedOperator as BannedOperator, BannedOperatorInfos, BossOperation, BossOperationInfos, Collectible, EmergencyOperation, EmergencyOperationInfos, HiddenOperation, HiddenOperationInfos, KingsCollectible, Squad } from "./data/sarkaz";
 import { AddEmergencyRecordModal, EmergencyOperationRecord } from "./components/AddEmergencyRecordModal";
@@ -608,6 +608,11 @@ function App() {
     </Card>
   </>
 
+
+  const [copyJsonOpen, setCopyJsonOpen] = createSignal(false);
+  const [loadJsonOpen, setLoadJsonOpen] = createSignal(false);
+  const [json, setJson] = createSignal("");
+
   enum Tab {
     Operation = "作战",
     OperatorsAndKingsCollectible = "阵容和国王套",
@@ -647,16 +652,51 @@ function App() {
               </span>
               <Box sx={{ flexGrow: 1 }} />
               <Button variant="contained" size="small" onClick={() => { setStore({ ...defaultStoreValue }) }}>清零</Button>
+              <Modal open={copyJsonOpen()} onClose={() => setCopyJsonOpen(false)}>
+                <Paper sx={{
+                  position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)",
+                  width: "50%", maxHeight: "80%",
+                  padding: 2,
+                  display: "flex", flexDirection: "column",
+                  gap: 1
+                }}>
+                  <TextField label="数据 json"
+                    multiline
+                    minRows={4}
+                    maxRows={4} value={json()} />
+                  <Box sx={{ display: "flex", gap: 2, justifyContent: "end" }}>
+                    <Button variant="outlined" onClick={() => setCopyJsonOpen(false)}>关闭</Button>
+                  </Box>
+                </Paper>
+              </Modal>
               <Button variant="outlined" size="small" onClick={async () => {
-                let content = JSON.stringify(store)
-                await saveJson(content);
-              }}>保存</Button>
+                setJson(JSON.stringify(store));
+                setCopyJsonOpen(true);
+              }}>复制 json</Button>
+              <Modal open={loadJsonOpen()} onClose={() => setLoadJsonOpen(false)}>
+                <Paper sx={{
+                  position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)",
+                  width: "50%", maxHeight: "80%",
+                  padding: 2,
+                  display: "flex", flexDirection: "column",
+                  gap: 1
+                }}>
+                  <TextField label="数据 json"
+                    multiline
+                    minRows={4}
+                    maxRows={4} value={json()} onChange={(_, v) => setJson(v)} />
+                  <Box sx={{ display: "flex", gap: 2, justifyContent: "end" }}>
+                    <Button variant="contained" onClick={() => {
+                      setStore(JSON.parse(json()))
+                      setLoadJsonOpen(false);
+                    }}>确定</Button>
+                    <Button variant="outlined" onClick={() => setLoadJsonOpen(false)}>取消</Button>
+                  </Box>
+                </Paper>
+              </Modal>
               <Button variant="outlined" size="small" onClick={async () => {
-                const content = await readJson();
-                let data = JSON.parse(content);
-                console.log(data)
-                setStore(data as Store)
-              }}>加载</Button>
+                setLoadJsonOpen(true);
+              }}>导入 json</Button>
             </Box>
             <BottomNavigation
               showLabels
