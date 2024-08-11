@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.0](https://github.com/BJTUEventCameraSoftwareGroup/event-cam-software/compare/0.1.3..0.2.0) - 2024-08-11
+
+### <!-- 0 -->🎈 Features
+
+
+- Save and load for web - ([d3a7ff0](https://github.com/BJTUEventCameraSoftwareGroup/event-cam-software/commit/d3a7ff022ec9c36e9786ce036f9e01b66df0c4bf))
+- Responsive design for mobile devices - ([27efd65](https://github.com/BJTUEventCameraSoftwareGroup/event-cam-software/commit/27efd65832b1e5e35934fd47370e53ce0ed8df79))
+- Basic android support - ([b25c3c5](https://github.com/BJTUEventCameraSoftwareGroup/event-cam-software/commit/b25c3c5699b2a56aa60711561679116ca22811f6))
+
+### <!-- 1 -->🕷️ Bug Fixes
+
+
+- Base path for web page - ([f116cd6](https://github.com/BJTUEventCameraSoftwareGroup/event-cam-software/commit/f116cd62f09f62ff0916e6b00830fc8598bcc253))
+- Mobile use clipboard for json utility - ([86bb1fb](https://github.com/BJTUEventCameraSoftwareGroup/event-cam-software/commit/86bb1fb17bca64fa880c4c95968a6d13106c5b2e))
+
+### <!-- 7 -->⚙️ Miscellaneous Tasks
+
+
+- Fix rust-cache workspaces path - ([d0da2f6](https://github.com/BJTUEventCameraSoftwareGroup/event-cam-software/commit/d0da2f61297c9d11c3db7fed297b59bdf067af68))
+- Added gh-pages workflow - ([de87dda](https://github.com/BJTUEventCameraSoftwareGroup/event-cam-software/commit/de87dda2d11e10551de09edd3984ec102e484869))
+- Update gh-pages workflow name - ([d80d6ee](https://github.com/BJTUEventCameraSoftwareGroup/event-cam-software/commit/d80d6eeccd108e0a27f118a9c3fe47caef2242fb))
+- Fix gh-pages workflow permissions - ([6912740](https://github.com/BJTUEventCameraSoftwareGroup/event-cam-software/commit/6912740ccaed82a2d70407248d874d411b25e935))
+
 ## [0.1.3](https://github.com/BJTUEventCameraSoftwareGroup/event-cam-software/compare/0.1.2..0.1.3) - 2024-08-09
 
 ### <!-- 1 -->🕷️ Bug Fixes
