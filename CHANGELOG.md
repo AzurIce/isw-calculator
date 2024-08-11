@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.1](https://github.com/BJTUEventCameraSoftwareGroup/event-cam-software/compare/0.2.0..0.2.1) - 2024-08-11
+
+### <!-- 1 -->🕷️ Bug Fixes
+
+
+- Typo - ([1e2470a](https://github.com/BJTUEventCameraSoftwareGroup/event-cam-software/commit/1e2470a75698fa41837babb0dd0cc368acb2eab7))
+
 ## [0.2.0](https://github.com/BJTUEventCameraSoftwareGroup/event-cam-software/compare/0.1.3..0.2.0) - 2024-08-11
 
 ### <!-- 0 -->🎈 Features
