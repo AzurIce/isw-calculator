@@ -1,4 +1,6 @@
-import { invoke } from "@tauri-apps/api/core";
+// import { invoke } from "@tauri-apps/api/core";
+import { open, save } from "@tauri-apps/plugin-dialog";
+import { readTextFile, writeTextFile } from "@tauri-apps/plugin-fs";
 
 export function isInTauri() {
   return '__TAURI_INTERNALS__' in window
@@ -6,7 +8,16 @@ export function isInTauri() {
 
 export async function saveJson(content: string) {
   if (isInTauri()) {
-    await invoke("write_json", { content });
+    const path = await save({
+      filters: [{
+        name: "json",
+        extensions: ["json"]
+      }]
+    });
+    if (path) {
+      await writeTextFile(path, content);
+    }
+    // await invoke("write_json", { content });
   } else {
     const blob = new Blob([content], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -24,8 +35,17 @@ export async function saveJson(content: string) {
 
 export async function readJson(): Promise<string> {
   if (isInTauri()) {
-    const content = await invoke<string>("read_json");
-    return content;
+    const file = await open({
+      multiple: false, directory: false, filters: [{
+        name: "json",
+        extensions: ["json"]
+      }]
+    });
+    if (file) {
+      return await readTextFile(file?.path);
+    } else {
+      throw new Error("Failed to read file");
+    }
   } else {
     console.log("?")
     return new Promise((resolve, reject) => {

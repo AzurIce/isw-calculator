@@ -551,7 +551,7 @@ function App() {
   // 结算 & 其他
   const SumPart: Component = () => <>
     {/* 结算部分（其他部分） */}
-    <Card sx={{ display: "flex", flexDirection: "column", gap: 1, flex: 1, padding: 2 }}>
+    <Card sx={{ display: "flex", flexDirection: "column", gap: 1, flexGrow: 1, padding: 2, flexShrink: 0 }}>
       <Typography variant="h6" sx={{ paddingBottom: 1 }}>结算</Typography>
       <Box sx={{ display: "flex", flexDirection: "column", gap: 1, flex: 1 }}>
         <TextField
