@@ -35,7 +35,7 @@ export enum EmergencyOperation {
   AGreatGame = "大棋一盘",
   GirimoireOfChaos = "溃乱魔典",
   ClashOfFantasies = "假想对冲",
-  ScarletPassage = "腥红甬道",
+  ScarletPassage = "猩红甬道",
   NecroticInvestigation = "朽败考察",
   GapBetweenEras = "年代断层（击破所有年代之刺）",
   AsylumInAnotherCity = "寄人城池下",
@@ -103,7 +103,7 @@ export const EmergencyOperationInfos: { [key: string]: EmergencyOperationInfo } 
 // 隐藏作战
 export enum HiddenOperation {
   FailedTestOfCourage = "失败的试胆",
-  Inheritance = "继承（击破所有“门”时）",
+  Inheritance = "继承（击破所有“门”）",
   TheSideOfBattlefield = "战场侧面",
   SignalLights = "信号灯",
   RobbingTheImaginary = "劫虚济实",
@@ -157,7 +157,7 @@ export enum BossOperation {
   SonglessCourtyard = "离歌的庭院",
   TheUnstoppable = "赴敌者",
   UrgentTeaching = "紧急授课",
-  Audience = "朝诣",
+  Audience = "朝谒",
   CivitasSancta = "圣城",
 }
 
