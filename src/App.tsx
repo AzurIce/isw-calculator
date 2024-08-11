@@ -1,12 +1,14 @@
-import { createSignal, For, Show } from "solid-js";
+import { Component, createSignal, For, Match, Show, Switch } from "solid-js";
 import "./App.css";
-import { Box, Button, Card, Checkbox, Divider, FormControl, InputLabel, MenuItem, Select, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from "@suid/material";
+import { BottomNavigation, BottomNavigationAction, Box, Button, Card, Checkbox, FormControl, IconButton, InputLabel, MenuItem, Paper, Select, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography, useMediaQuery } from "@suid/material";
 
 import { BannedOperator as BannedOperator, BannedOperatorInfos, BossOperation, BossOperationInfos, Collectible, EmergencyOperation, EmergencyOperationInfos, HiddenOperation, HiddenOperationInfos, KingsCollectible, Squad } from "./data/sarkaz";
-import { AddOperationRecordModal, EmergencyOperationRecord, HiddenOperationRecord } from "./components/AddOperationRecordModal";
+import { AddEmergencyRecordModal, EmergencyOperationRecord } from "./components/AddEmergencyRecordModal";
 import { createStore } from "solid-js/store";
 import { AddBossRecordModal, BossOperationRecord } from "./components/AddBossRecordModal";
-import { readJson , saveJson } from "./lib";
+import { readJson, saveJson } from "./lib";
+import { AddHiddenRecordModal, HiddenOperationRecord } from "./components/AddHiddenRecordModal";
+import { Delete } from "@suid/icons-material";
 
 type BannedOperatorRecord = {
   operator: BannedOperator,
@@ -117,26 +119,10 @@ const defaultStoreValue: Store = {
 };
 
 function App() {
-  const [addOperationRecordModalOpen, setAddOperationRecordModalOpen] = createSignal(false);
-  const [addBossRecordModalOpen, setAddBossRecordModalOpen] = createSignal(false);
+  const sm = useMediaQuery("(max-width: 600px)");
 
   const [store, setStore] = createStore<Store>({ ...defaultStoreValue });
-
-  const addEmergencyRecord = (record: EmergencyOperationRecord) => {
-    setStore('emergencyRecords', (operations) => [...operations, record])
-  }
-
-  const updateEmergencyRecord = (idx: number, record: EmergencyOperationRecord) => {
-    setStore('emergencyRecords', (operations) => operations.map((operation, i) =>
-      i !== idx ? operation : record
-    ))
-  }
-
-  const removeEmergencyRecord = (idx: number) => {
-    setStore('emergencyRecords', (operations) => operations.filter((_, i) =>
-      i !== idx
-    ))
-  }
+  // const [store, setStore] = createStore<Store>({ ...testStoreValue });
 
   const calcEmergencyRecordScore = (idx: number) => {
     const record = store.emergencyRecords[idx];
@@ -149,37 +135,12 @@ function App() {
     return score;
   }
 
-  const addHiddenRecord = (record: HiddenOperationRecord) => {
-    setStore('hiddenRecords', (operations) => [...operations, record])
-  }
-
-  const updateHiddenRecord = (idx: number, record: HiddenOperationRecord) => {
-    setStore('hiddenRecords', (operations) => operations.map((operation, i) =>
-      i !== idx ? operation : record
-    ))
-  }
-
-  const removeHiddenRecord = (idx: number) => {
-    setStore('hiddenRecords', (operations) => operations.filter((_, i) =>
-      i !== idx
-    ))
-  }
 
   const calcHiddenRecordScore = (idx: number) => {
     const record = store.hiddenRecords[idx];
     const info = HiddenOperationInfos[record.operation];
     const score = (record.emergency ? info.emergency_score : info.score) * (record.perfect ? 1 : 0.5);
     return score;
-  }
-
-  const addBossRecord = (record: BossOperationRecord) => {
-    setStore('bossRecords', (operations) => [...operations, record])
-  }
-
-  const removeBossRecord = (idx: number) => {
-    setStore('bossRecords', (operations) => operations.filter((_, i) =>
-      i !== idx
-    ))
   }
 
   const calcBossRecordScore = (idx: number) => {
@@ -189,10 +150,14 @@ function App() {
     return score;
   }
 
-  const calcEmergencyAndHiddenSum = () => {
+  const calcEmergencySum = () => {
     const emergencySum = store.emergencyRecords.reduce((sum, _, idx) => sum + calcEmergencyRecordScore(idx), 0);
+    return emergencySum;
+  }
+
+  const calcHiddenSum = () => {
     const hiddenSum = store.hiddenRecords.reduce((sum, _, idx) => sum + calcHiddenRecordScore(idx), 0);
-    return emergencySum + hiddenSum;
+    return hiddenSum;
   }
 
   const calcBossSum = () => {
@@ -268,314 +233,487 @@ function App() {
 
   const calcTotalSum = () => {
     return calcScore()
-      + calcEmergencyAndHiddenSum() + calcBossSum()
+      + calcEmergencySum() + calcHiddenSum() + calcBossSum()
       + calcCollectionsScore() + calcHiddenScore() + calcRefreshScore() + calcWithdrawScore()
       + calcBannedSum() + calcKingsCollectibleSum();
   }
 
-  return <>
-    <Box sx={{ display: "flex", gap: 2, height: "100%", boxSizing: "border-box", padding: 1 }}>
-      <Box sx={{ display: "flex", flexDirection: "column", gap: 1, flex: 1, height: "100%", overflowY: "scroll", minWidth: 1000 }}>
-        {/* 开局设置 */}
-        <Card sx={{ display: "flex", flexShrink: 0, flexDirection: "column", gap: 1, padding: 2 }}>
-          <Typography variant="h6">开局设置</Typography>
-          <Box sx={{ display: "flex", gap: 2 }}>
-            <FormControl sx={{ flex: 1 }}>
-              <InputLabel id="squad-select-label">开局分队</InputLabel>
-              <Select
-                labelId="squad-select-label"
-                id="squad-select"
-                value={store.squad || ''} // use `|| ''` to prevent error
-                label="开局分队"
-                onChange={(e) => {
-                  setStore("squad", e.target.value);
-                }}
-              >
-                <For each={Object.values(Squad)}>{(squad) => <>
-                  <MenuItem value={squad}>{squad}</MenuItem>
-                </>}</For>
-              </Select>
-            </FormControl>
-
-            <FormControl sx={{ flex: 1 }}>
-              <InputLabel id="demo-simple-select-label">开局藏品</InputLabel>
-              <Select
-                labelId="demo-simple-select-label"
-                id="demo-simple-select"
-                value={store.collectible || ''}
-                label="开局藏品"
-                onChange={(e) => {
-                  setStore("collectible", e.target.value);
-                }}
-              >
-                <For each={Object.values(Collectible)}>{(squad) => <>
-                  <MenuItem value={squad}>{squad}</MenuItem>
-                </>}</For>
-              </Select>
-            </FormControl>
-          </Box >
-        </Card>
-
-        {/* 紧急和隐藏作战 */}
-        <AddOperationRecordModal open={addOperationRecordModalOpen} onClose={() => {
-          setAddOperationRecordModalOpen(false);
-        }} onAddEmergencyRecord={addEmergencyRecord} onAddHiddenRecord={addHiddenRecord} />
-        <Card sx={{ display: "flex", flexShrink: 0, flexDirection: "column", gap: 1, padding: 2 }}>
-          <Box sx={{ display: "flex", alignContent: "center", gap: 2 }}>
-            <Typography variant="h6">紧急和隐藏作战</Typography>
-            <Button variant="contained" size="small" onClick={() => {
-              setAddOperationRecordModalOpen(true)
-            }}>
-              添加
-            </Button>
-          </Box>
-          <Box sx={{ display: "flex", justifyContent: "stretch", gap: 1 }}>
-            {/* 紧急作战 */}
-            <TableContainer component={Box} sx={{ flex: 1, minWidth: 500 }}>
-              <Table aria-label="simple table">
-                <TableHead>
-                  <TableRow>
-                    <TableCell>紧急作战名称</TableCell>
-                    <TableCell>无漏</TableCell>
-                    <TableCell>刷新</TableCell>
-                    <TableCell align="right">分数</TableCell>
-                    <TableCell align="center">操作</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  <For each={store.emergencyRecords}>
-                    {(item, idx) => (
-                      <TableRow
-                        sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                      >
-                        <TableCell component="th" scope="row">
-                          {item.operation}
-                        </TableCell>
-                        <TableCell>
-                          <Checkbox checked={item.perfect} onChange={(e, v) => {
-                            updateEmergencyRecord(idx(), { ...item, perfect: v });
-                            console.log(item)
-                          }} />
-                        </TableCell>
-                        <TableCell>
-                          <Checkbox checked={item.refresh} onChange={(e, v) => {
-                            updateEmergencyRecord(idx(), { ...item, refresh: v });
-                          }} />
-                        </TableCell>
-                        <TableCell align="right">{calcEmergencyRecordScore(idx())}</TableCell>
-                        <TableCell align="center">
-                          <Button variant="contained" color="error" onClick={() => removeEmergencyRecord(idx())}>删除</Button>
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </For>
-                </TableBody>
-              </Table>
-            </TableContainer>
-
-            <Divider orientation="vertical" flexItem />
-
-            {/* 隐藏作战 */}
-            <TableContainer component={Box} sx={{ flex: 1, minWidth: 400 }}>
-              <Table aria-label="simple table">
-                <TableHead>
-                  <TableRow>
-                    <TableCell>隐藏作战名称</TableCell>
-                    <TableCell>无漏</TableCell>
-                    <TableCell align="right">分数</TableCell>
-                    <TableCell align="center">操作</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  <For each={store.hiddenRecords}>
-                    {(item, idx) => (
-                      <TableRow
-                        sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                      >
-                        <TableCell component="th" scope="row" sx={{ color: item.emergency ? 'red' : 'auto' }}>
-                          {item.operation}
-                          <Show when={item.emergency}>
-                            （紧急）
-                          </Show>
-                        </TableCell>
-                        <TableCell>
-                          <Checkbox checked={item.perfect} onChange={(_, v) => {
-                            updateHiddenRecord(idx(), { ...item, perfect: v });
-                          }} />
-                        </TableCell>
-                        <TableCell align="right">{calcHiddenRecordScore(idx())}</TableCell>
-                        <TableCell align="center">
-                          <Button variant="contained" color="error" onClick={() => removeHiddenRecord(idx())}>删除</Button>
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </For>
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </Box>
-          <Typography>该部分得分: {calcEmergencyAndHiddenSum()}</Typography>
-        </Card >
-
-        {/* 领袖作战 */}
-        <AddBossRecordModal
-          open={addBossRecordModalOpen}
-          onClose={() => {
-            setAddBossRecordModalOpen(false);
-          }}
-          onAddRecord={addBossRecord} />
-        <Card sx={{ display: "flex", flexShrink: 0, flexDirection: "column", gap: 1, padding: 2 }}>
-          <Box sx={{ display: "flex", alignContent: "center", gap: 2 }}>
-            <Typography variant="h6">领袖作战</Typography>
-            <Button variant="contained" size="small" onClick={() => {
-              setAddBossRecordModalOpen(true)
-            }}>
-              添加
-            </Button>
-          </Box>
-
-          {/* 领袖作战 */}
-          <TableContainer component={Box} sx={{ flex: 1, minWidth: 600, }}>
-            <Table aria-label="simple table">
-              <TableHead>
-                <TableRow>
-                  <TableCell>领袖作战名称</TableCell>
-                  <TableCell align="right">分数</TableCell>
-                  <TableCell align="center">操作</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                <For each={store.bossRecords}>
-                  {(item, idx) => (
-                    <TableRow
-                      sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                    >
-                      <TableCell component="th" scope="row" sx={{ color: item.chaos ? 'red' : 'auto' }}>
-                        {item.operation}
-                        <Show when={item.chaos}>
-                          （混乱）
-                        </Show>
-                      </TableCell>
-                      <TableCell align="right">{calcBossRecordScore(idx())}</TableCell>
-                      <TableCell align="center">
-                        <Button variant="contained" color="error" onClick={() => removeBossRecord(idx())}>删除</Button>
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </For>
-              </TableBody>
-            </Table>
-          </TableContainer>
-          <Typography>该部分得分: {calcBossSum()}</Typography>
-        </Card>
-
-        {/* ban 人 */}
-        <Card sx={{ display: "flex", flexShrink: 0, flexDirection: "column", gap: 1, padding: 2 }}>
-          <Typography variant="h6">ban 人</Typography>
-          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-            <For each={store.bannedOperatorRecords}>{(item) => <>
-              <Button variant="outlined" color={item.banned ? "success" : "secondary"} onClick={() => {
-                toggleBannedOperator(item.operator)
-              }}>
-                {item.operator}
-                <Show when={item.banned}>
-                  <span style={{ color: "green" }}>（+{BannedOperatorInfos[item.operator]}）</span>
-                </Show>
-              </Button>
-            </>}</For>
-          </Box>
-          <Typography>该部分得分: {calcBannedSum()}</Typography>
-        </Card>
-
-        {/* 国王套 */}
-        <Card sx={{ display: "flex", flexShrink: 0, flexDirection: "column", gap: 1, padding: 2 }}>
-          <Typography variant="h6">国王套</Typography>
-          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-            <For each={store.kingsCollectibleRecords}>{(item) => <>
-              <Button variant="outlined" color={item.owned ? "error" : "secondary"} onClick={() => {
-                toggleKingsCollectible(item.collectible)
-              }}>
-                {item.collectible}
-              </Button>
-            </>}</For>
-          </Box>
-          <Typography>该部分得分: {calcKingsCollectibleSum()}</Typography>
-        </Card>
-      </Box>
-
-      {/* 右侧 结算栏 */}
-      <Box sx={{ display: "flex", flexDirection: "column", minWidth: 200 }}>
-        <Card sx={{ display: "flex", flexDirection: "column", gap: 1, flex: 1, padding: 2 }}>
-          <Typography variant="h6" sx={{ paddingBottom: 1 }}>结算</Typography>
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 1, flex: 1 }}>
-            <TextField
-              label="藏品数量"
-              type="number"
-              value={store.collectionsCnt}
-              onChange={(_, value) => setStore("collectionsCnt", parseInt(value) || 0)}
-              helperText={
-                store.collectible == Collectible.DoodleInTheEraOfHope
-                  ? <span style={{ color: "green" }}>{store.collectionsCnt} * {collectibleScore()} = {calcCollectionsScore()}</span>
-                  : <span style={{ color: "red" }}>无希望时代的涂鸦</span>
-              }
-            />
-            <TextField
-              label="击杀隐藏数量"
-              type="number"
-              value={store.killedHiddenCnt}
-              onChange={(_, value) => setStore("killedHiddenCnt", parseInt(value) || 0)}
-              helperText={`${store.killedHiddenCnt} * 10 = ${calcHiddenScore()}`}
-            />
-            <TextField
-              label="刷新次数"
-              type="number"
-              value={store.refreshCnt}
-              onChange={(_, value) => setStore("refreshCnt", parseInt(value) || 0)}
-              helperText={
-                store.refreshCnt <= maxRefreshCnt()
-                  ? <span style={{ color: "green" }}>&lt;= {maxRefreshCnt()}</span>
-                  : <span style={{ color: "red" }}>{store.refreshCnt - maxRefreshCnt()} x -50 = {calcRefreshScore()}</span>
-              }
-            />
-            <TextField
-              label="取钱数量"
-              type="number"
-              value={store.withdrawCnt}
-              onChange={(_, value) => setStore("withdrawCnt", parseInt(value) || 0)}
-              sx={{
-                color: store.withdrawCnt < 40 ? "green" : "red"
+  // 开局设置
+  const OpeningPart: Component = () => <>
+    {/* 开局设置 */}
+    <Card sx={{ display: "flex", flexShrink: 0, flexDirection: "column", gap: 1, padding: 2, zIndex: 20 }}>
+      <Typography variant="h6">开局设置</Typography>
+      <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap", justifyContent: "stretch" }}>
+        <Box sx={{ minWidth: 150, flexGrow: 1 }}>
+          <FormControl fullWidth>
+            <InputLabel id="squad-select-label">开局分队</InputLabel>
+            <Select
+              labelId="squad-select-label"
+              id="squad-select"
+              value={store.squad || ''} // use `|| ''` to prevent error
+              label="开局分队"
+              onChange={(e) => {
+                setStore("squad", e.target.value);
               }}
-              helperText={
-                store.withdrawCnt <= 40
-                  ? <span style={{ color: "green" }}>&lt;= 40</span>
-                  : <span style={{ color: "red" }}>{store.withdrawCnt - 40} x -50 = {calcWithdrawScore()}</span>
-              }
-            />
-            <TextField
-              label="结算分"
-              type="number"
-              value={store.score}
-              onChange={(_, value) => setStore("score", parseInt(value) || 0)}
-              helperText={`${store.score} x 0.5 = ${calcScore()}`}
-            />
-          </Box>
-          <Typography sx={{ fontSize: "1.5rem" }}>总计：{calcTotalSum()}</Typography>
-          <Box sx={{ display: "flex", gap: 1 }}>
-            <Button variant="contained" onClick={() => { setStore({ ...defaultStoreValue }) }}>清零</Button>
-            <Button variant="outlined" onClick={async () => {
-              let content = JSON.stringify(store)
-              await saveJson(content);
-            }}>保存</Button>
-            <Button variant="outlined" onClick={async () => {
-              const content = await readJson();
-              let data = JSON.parse(content);
-              console.log(data)
-              setStore(data as Store)
-            }}>加载</Button>
-          </Box>
-        </Card>
+            >
+              <For each={Object.values(Squad)}>{(squad) => <>
+                <MenuItem value={squad}>{squad}</MenuItem>
+              </>}</For>
+            </Select>
+          </FormControl>
+        </Box>
+
+        <Box sx={{ minWidth: 150, flexGrow: 1 }}>
+          <FormControl fullWidth>
+            <InputLabel id="demo-simple-select-label">开局藏品</InputLabel>
+            <Select
+              labelId="demo-simple-select-label"
+              id="demo-simple-select"
+              value={store.collectible || ''}
+              label="开局藏品"
+              onChange={(e) => {
+                setStore("collectible", e.target.value);
+              }}
+            >
+              <For each={Object.values(Collectible)}>{(squad) => <>
+                <MenuItem value={squad}>{squad}</MenuItem>
+              </>}</For>
+            </Select>
+          </FormControl>
+        </Box>
+      </Box >
+    </Card>
+  </>
+
+  // 紧急作战
+  const [emergencyOpen, setEmergencyOpen] = createSignal(false);
+  const addEmergencyRecord = (record: EmergencyOperationRecord) => {
+    setStore('emergencyRecords', (operations) => [...operations, record])
+  }
+  const updateEmergencyRecord = (idx: number, record: EmergencyOperationRecord) => {
+    setStore('emergencyRecords', (operations) => operations.map((operation, i) =>
+      i !== idx ? operation : record
+    ))
+  }
+  const removeEmergencyRecord = (idx: number) => {
+    setStore('emergencyRecords', (operations) => operations.filter((_, i) =>
+      i !== idx
+    ))
+  }
+  const EmergencyPart = () => <>
+    <AddEmergencyRecordModal open={emergencyOpen} onClose={() => {
+      setEmergencyOpen(false);
+    }} onAddRecord={addEmergencyRecord} />
+    {/* 紧急作战 */}
+    <Card sx={{ display: "flex", flexShrink: 0, flexDirection: "column", gap: 1, padding: 2 }}>
+      <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+        <Typography variant="h6">紧急作战</Typography>
+        <Button variant="contained" size="small" onClick={() => {
+          setEmergencyOpen(true)
+        }}>
+          添加
+        </Button>
+        <Box sx={{ flexGrow: 1 }} />
+        <Typography>该部分得分: {calcEmergencySum()}</Typography>
       </Box>
-    </Box>
+      <Box sx={{ display: "flex", justifyContent: "stretch", gap: 1 }}>
+        {/* 紧急作战 */}
+        <TableContainer component={Box} sx={{ flex: 1 }}>
+          <Table aria-label="simple table" size="small">
+            <TableHead>
+              <TableRow>
+                <TableCell sx={{ minWidth: 60 }}>名称</TableCell>
+                <TableCell>无漏</TableCell>
+                <TableCell>刷新</TableCell>
+                <TableCell align="right">分数</TableCell>
+                <TableCell align="center">操作</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              <For each={store.emergencyRecords}>
+                {(item, idx) => (
+                  <TableRow
+                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                  >
+                    <TableCell component="th" scope="row">
+                      {item.operation}
+                    </TableCell>
+                    <TableCell>
+                      <Checkbox size="small" checked={item.perfect} onChange={(_, v) => {
+                        updateEmergencyRecord(idx(), { ...item, perfect: v });
+                        console.log(item)
+                      }} />
+                    </TableCell>
+                    <TableCell>
+                      <Checkbox size="small" checked={item.refresh} onChange={(_, v) => {
+                        updateEmergencyRecord(idx(), { ...item, refresh: v });
+                      }} />
+                    </TableCell>
+                    <TableCell align="right">{calcEmergencyRecordScore(idx())}</TableCell>
+                    <TableCell align="center">
+                      <IconButton color="error" onClick={() => { removeEmergencyRecord(idx()) }}><Delete /></IconButton>
+                    </TableCell>
+                  </TableRow>
+                )}
+              </For>
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Box>
+    </Card >
+  </>
+
+  // 隐藏作战
+  const [hiddenOpen, setHiddenOpen] = createSignal(false);
+  const addHiddenRecord = (record: HiddenOperationRecord) => {
+    setStore('hiddenRecords', (operations) => [...operations, record])
+  }
+  const updateHiddenRecord = (idx: number, record: HiddenOperationRecord) => {
+    setStore('hiddenRecords', (operations) => operations.map((operation, i) =>
+      i !== idx ? operation : record
+    ))
+  }
+  const removeHiddenRecord = (idx: number) => {
+    setStore('hiddenRecords', (operations) => operations.filter((_, i) =>
+      i !== idx
+    ))
+  }
+  const HiddenPart = () => <>
+    <AddHiddenRecordModal open={hiddenOpen} onClose={() => {
+      setHiddenOpen(false);
+    }} onAddRecord={addHiddenRecord} />
+    {/* 隐藏作战 */}
+    <Card sx={{ display: "flex", flexShrink: 0, flexDirection: "column", gap: 1, padding: 2 }}>
+      <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+        <Typography variant="h6">隐藏作战</Typography>
+        <Button variant="contained" size="small" onClick={() => {
+          setHiddenOpen(true)
+        }}>
+          添加
+        </Button>
+        <Box sx={{ flexGrow: 1 }} />
+        <Typography>该部分得分: {calcHiddenSum()}</Typography>
+      </Box>
+      <Box sx={{ display: "flex", justifyContent: "stretch", gap: 1 }}>
+        {/* 隐藏作战 */}
+        <TableContainer component={Box} sx={{ flex: 1 }}>
+          <Table aria-label="simple table" size="small">
+            <TableHead>
+              <TableRow>
+                <TableCell>名称</TableCell>
+                <TableCell>无漏</TableCell>
+                <TableCell align="right">分数</TableCell>
+                <TableCell align="center">操作</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              <For each={store.hiddenRecords}>
+                {(item, idx) => (
+                  <TableRow
+                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                  >
+                    <TableCell component="th" scope="row" sx={{ color: item.emergency ? 'red' : 'auto' }}>
+                      {item.operation}
+                      <Show when={item.emergency}>
+                        （紧急）
+                      </Show>
+                    </TableCell>
+                    <TableCell>
+                      <Checkbox size="small" checked={item.perfect} onChange={(_, v) => {
+                        updateHiddenRecord(idx(), { ...item, perfect: v });
+                      }} />
+                    </TableCell>
+                    <TableCell align="right">{calcHiddenRecordScore(idx())}</TableCell>
+                    <TableCell align="center">
+                      <IconButton color="error" onClick={() => removeHiddenRecord(idx())}>
+                        <Delete />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                )}
+              </For>
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Box>
+    </Card >
+  </>
+
+  // 领袖作战
+  const [bossOpen, setBossOpen] = createSignal(false);
+  const addBossRecord = (record: BossOperationRecord) => {
+    setStore('bossRecords', (operations) => [...operations, record])
+  }
+  const removeBossRecord = (idx: number) => {
+    setStore('bossRecords', (operations) => operations.filter((_, i) =>
+      i !== idx
+    ))
+  }
+  const BossPart = () => <>
+    {/* 领袖作战 */}
+    <AddBossRecordModal open={bossOpen} onClose={() => { setBossOpen(false); }} onAddRecord={addBossRecord} />
+    <Card sx={{ display: "flex", flexShrink: 0, flexDirection: "column", gap: 1, padding: 2 }}>
+      <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+        <Typography variant="h6">领袖作战</Typography>
+        <Button variant="contained" size="small" onClick={() => { setBossOpen(true) }}>
+          添加
+        </Button>
+        <Box sx={{ flexGrow: 1 }} />
+        <Typography>该部分得分: {calcBossSum()}</Typography>
+      </Box>
+
+      {/* 领袖作战 */}
+      <TableContainer component={Box} sx={{ flex: 1 }}>
+        <Table aria-label="simple table" size="small">
+          <TableHead>
+            <TableRow>
+              <TableCell>名称</TableCell>
+              <TableCell>&nbsp;&nbsp;&nbsp;&nbsp;</TableCell>
+              <TableCell>&nbsp;&nbsp;&nbsp;&nbsp;</TableCell>
+              <TableCell align="right">分数</TableCell>
+              <TableCell align="center">操作</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            <For each={store.bossRecords}>
+              {(item, idx) => (
+                <TableRow
+                  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                >
+                  <TableCell component="th" scope="row" sx={{ color: item.chaos ? 'red' : 'auto' }}>
+                    {item.operation}
+                    <Show when={item.chaos}>
+                      （混乱）
+                    </Show>
+                  </TableCell>
+                  <TableCell></TableCell>
+                  <TableCell></TableCell>
+                  <TableCell align="right">{calcBossRecordScore(idx())}</TableCell>
+                  <TableCell align="center">
+                    <IconButton color="error" onClick={() => removeBossRecord(idx())}>
+                      <Delete />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
+              )}
+            </For>
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </Card>
+  </>
+
+  // 阵容补偿
+  const OperatorPart = () => <>
+    {/* 阵容补偿 */}
+    <Card sx={{ display: "flex", flexShrink: 0, flexDirection: "column", gap: 1, padding: 2 }}>
+      <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+        <Typography variant="h6">阵容补偿</Typography>
+        <Box sx={{ flexGrow: 1 }} />
+        <Typography>该部分得分: {calcBannedSum()}</Typography>
+      </Box>
+      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+        <For each={store.bannedOperatorRecords}>{(item) => <>
+          <Button variant="outlined" color={item.banned ? "success" : "secondary"} onClick={() => {
+            toggleBannedOperator(item.operator)
+          }}>
+            {item.operator}
+            <Show when={item.banned}>
+              <span style={{ color: "green" }}>（+{BannedOperatorInfos[item.operator]}）</span>
+            </Show>
+          </Button>
+        </>}</For>
+      </Box>
+    </Card>
+  </>
+
+  // 国王收藏品
+  const KingsCollectivesPart = () => <>
+    {/* 国王套 */}
+    <Card sx={{ display: "flex", flexShrink: 0, flexDirection: "column", gap: 1, padding: 2 }}>
+      <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+        <Typography variant="h6">国王套</Typography>
+        <Box sx={{ flexGrow: 1 }} />
+        <Typography>该部分得分: {calcKingsCollectibleSum()}</Typography>
+      </Box>
+      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+        <For each={store.kingsCollectibleRecords}>{(item) => <>
+          <Button variant="outlined" color={item.owned ? "error" : "secondary"} onClick={() => {
+            toggleKingsCollectible(item.collectible)
+          }}>
+            {item.collectible}
+          </Button>
+        </>}</For>
+      </Box>
+    </Card>
+  </>
+
+  // 结算 & 其他
+  const SumPart: Component = () => <>
+    {/* 结算部分（其他部分） */}
+    <Card sx={{ display: "flex", flexDirection: "column", gap: 1, flex: 1, padding: 2 }}>
+      <Typography variant="h6" sx={{ paddingBottom: 1 }}>结算</Typography>
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 1, flex: 1 }}>
+        <TextField
+          label="藏品数量"
+          type="number"
+          value={store.collectionsCnt}
+          onChange={(_, value) => setStore("collectionsCnt", parseInt(value) || 0)}
+          helperText={
+            store.collectible == Collectible.DoodleInTheEraOfHope
+              ? <span style={{ color: "green" }}>{store.collectionsCnt} * {collectibleScore()} = {calcCollectionsScore()}</span>
+              : <span style={{ color: "red" }}>无希望时代的涂鸦</span>
+          }
+        />
+        <TextField
+          label="击杀隐藏数量"
+          type="number"
+          value={store.killedHiddenCnt}
+          onChange={(_, value) => setStore("killedHiddenCnt", parseInt(value) || 0)}
+          helperText={`${store.killedHiddenCnt} * 10 = ${calcHiddenScore()}`}
+        />
+        <TextField
+          label="刷新次数"
+          type="number"
+          value={store.refreshCnt}
+          onChange={(_, value) => setStore("refreshCnt", parseInt(value) || 0)}
+          helperText={
+            store.refreshCnt <= maxRefreshCnt()
+              ? <span style={{ color: "green" }}>&lt;= {maxRefreshCnt()}</span>
+              : <span style={{ color: "red" }}>{store.refreshCnt - maxRefreshCnt()} x -50 = {calcRefreshScore()}</span>
+          }
+        />
+        <TextField
+          label="取钱数量"
+          type="number"
+          value={store.withdrawCnt}
+          onChange={(_, value) => setStore("withdrawCnt", parseInt(value) || 0)}
+          sx={{
+            color: store.withdrawCnt < 40 ? "green" : "red"
+          }}
+          helperText={
+            store.withdrawCnt <= 40
+              ? <span style={{ color: "green" }}>&lt;= 40</span>
+              : <span style={{ color: "red" }}>{store.withdrawCnt - 40} x -50 = {calcWithdrawScore()}</span>
+          }
+        />
+        <TextField
+          label="结算分"
+          type="number"
+          value={store.score}
+          onChange={(_, value) => setStore("score", parseInt(value) || 0)}
+          helperText={`${store.score} x 0.5 = ${calcScore()}`}
+        />
+      </Box>
+    </Card>
+  </>
+
+  enum Tab {
+    Operation = "作战",
+    OperatorsAndKingsCollectible = "阵容和国王套",
+    Others = "其他",
+  }
+  const [tab, setTab] = createSignal(Tab.Operation);
+
+  return <>
+    <Switch>
+      {/* 窄屏界面 */}
+      <Match when={sm()}>
+        <Box sx={{
+          display: "flex", height: "100%", boxSizing: "border-box",
+          flexDirection: "column"
+        }}>
+          <OpeningPart />
+          <Box sx={{ display: "flex", flexDirection: "column", flexGrow: 1, gap: 1, overflowY: "auto", padding: 1 }}>
+            <Switch>
+              <Match when={tab() == Tab.Operation}>
+                <EmergencyPart />
+                <HiddenPart />
+                <BossPart />
+              </Match>
+              <Match when={tab() == Tab.OperatorsAndKingsCollectible}>
+                <OperatorPart />
+                <KingsCollectivesPart />
+              </Match>
+              <Match when={tab() == Tab.Others}>
+                <SumPart />
+              </Match>
+            </Switch>
+          </Box>
+          <Paper sx={{ display: "flex", flexDirection: "column", gap: 1, flexShrink: 0 }}>
+            <Box sx={{ display: "flex", gap: 1, padding: 1 }}>
+              <span>总分：
+                <span style={{ "font-size": "x-large" }}>{calcTotalSum()}</span>
+              </span>
+              <Box sx={{ flexGrow: 1 }} />
+              <Button variant="contained" size="small" onClick={() => { setStore({ ...defaultStoreValue }) }}>清零</Button>
+              <Button variant="outlined" size="small" onClick={async () => {
+                let content = JSON.stringify(store)
+                await saveJson(content);
+              }}>保存</Button>
+              <Button variant="outlined" size="small" onClick={async () => {
+                const content = await readJson();
+                let data = JSON.parse(content);
+                console.log(data)
+                setStore(data as Store)
+              }}>加载</Button>
+            </Box>
+            <BottomNavigation
+              showLabels
+              sx={{ width: "100%" }}
+              value={tab()}
+              onChange={(_, newValue) => setTab(newValue)}
+            >
+              <For each={Object.values(Tab)}>{(item) => <BottomNavigationAction label={item} value={item} />}</For>
+            </BottomNavigation>
+          </Paper>
+        </Box>
+      </Match>
+      {/* 宽屏界面 */}
+      <Match when={!sm()}>
+        <Box sx={{
+          display: "flex", gap: 1, height: "100%", boxSizing: "border-box",
+          padding: 1
+        }}>
+          <Box sx={{
+            display: "flex", flexDirection: "column",
+            gap: 1, flex: 1,
+            height: "100%", overflowY: "scroll",
+            paddingRight: 1
+          }}>
+            <OpeningPart />
+
+            <EmergencyPart />
+            <HiddenPart />
+            <BossPart />
+
+            <OperatorPart />
+
+            <KingsCollectivesPart />
+
+          </Box>
+          <Box sx={{ display: "flex", flexDirection: "column", minWidth: 200, gap: 1 }}>
+            <SumPart />
+            <Card sx={{ display: "flex", flexDirection: "column", gap: 1, padding: 2 }}>
+              <Typography sx={{ fontSize: "1.5rem" }}>总计：{calcTotalSum()}</Typography>
+              <Box sx={{ display: "flex", gap: 1 }}>
+                <Button variant="contained" onClick={() => { setStore({ ...defaultStoreValue }) }}>清零</Button>
+                <Button variant="outlined" onClick={async () => {
+                  let content = JSON.stringify(store)
+                  await saveJson(content);
+                }}>保存</Button>
+                <Button variant="outlined" onClick={async () => {
+                  const content = await readJson();
+                  let data = JSON.parse(content);
+                  console.log(data)
+                  setStore(data as Store)
+                }}>加载</Button>
+              </Box>
+            </Card>
+          </Box>
+        </Box>
+      </Match>
+    </Switch>
   </>;
 }
 
