@@ -6,7 +6,7 @@ import { BannedOperator as BannedOperator, BannedOperatorInfos, BossOperation, B
 import { AddOperationRecordModal, EmergencyOperationRecord, HiddenOperationRecord } from "./components/AddOperationRecordModal";
 import { createStore } from "solid-js/store";
 import { AddBossRecordModal, BossOperationRecord } from "./components/AddBossRecordModal";
-import { invoke } from "@tauri-apps/api/core";
+import { readJson , saveJson } from "./lib";
 
 type BannedOperatorRecord = {
   operator: BannedOperator,
@@ -564,11 +564,10 @@ function App() {
             <Button variant="contained" onClick={() => { setStore({ ...defaultStoreValue }) }}>清零</Button>
             <Button variant="outlined" onClick={async () => {
               let content = JSON.stringify(store)
-              console.log(content)
-              await invoke("write_json", { content });
+              await saveJson(content);
             }}>保存</Button>
             <Button variant="outlined" onClick={async () => {
-              const content = await invoke<string>("read_json");
+              const content = await readJson();
               let data = JSON.parse(content);
               console.log(data)
               setStore(data as Store)
