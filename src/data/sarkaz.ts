@@ -223,7 +223,7 @@ export enum BannedOperator {
 
   Ray = "莱伊",
   Nymph = "妮芙",
-  Ascln = "阿斯卡伦",
+  Ascln = "阿斯卡纶",
   Texas2 = "缄默德克萨斯",
   Ulpia = "乌尔比安",
   Agoat2 = "纯烬艾雅法拉",
