@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.2](https://github.com/BJTUEventCameraSoftwareGroup/event-cam-software/compare/0.2.1..0.2.2) - 2024-08-13
+
+### <!-- 1 -->🕷️ Bug Fixes
+
+
+- Typo - ([aa37968](https://github.com/BJTUEventCameraSoftwareGroup/event-cam-software/commit/aa379681d60d0693990ab7e6d95db67d8c0b17a3))
+- Make floating numbers display precision `toFixed(1)` - ([150a24a](https://github.com/BJTUEventCameraSoftwareGroup/event-cam-software/commit/150a24a2c4d5c240bed517009f1e5996e250069a))
+
 ## [0.2.1](https://github.com/BJTUEventCameraSoftwareGroup/event-cam-software/compare/0.2.0..0.2.1) - 2024-08-11
 
 ### <!-- 1 -->🕷️ Bug Fixes
