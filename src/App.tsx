@@ -314,7 +314,7 @@ function App() {
           添加
         </Button>
         <Box sx={{ flexGrow: 1 }} />
-        <Typography>该部分得分: {calcEmergencySum()}</Typography>
+        <Typography>该部分得分: {calcEmergencySum().toFixed(1)}</Typography>
       </Box>
       <Box sx={{ display: "flex", justifyContent: "stretch", gap: 1 }}>
         {/* 紧急作战 */}
@@ -349,7 +349,7 @@ function App() {
                         updateEmergencyRecord(idx(), { ...item, refresh: v });
                       }} />
                     </TableCell>
-                    <TableCell align="right">{calcEmergencyRecordScore(idx())}</TableCell>
+                    <TableCell align="right">{calcEmergencyRecordScore(idx()).toFixed(1)}</TableCell>
                     <TableCell align="center">
                       <IconButton color="error" onClick={() => { removeEmergencyRecord(idx()) }}><Delete /></IconButton>
                     </TableCell>
@@ -392,7 +392,7 @@ function App() {
           添加
         </Button>
         <Box sx={{ flexGrow: 1 }} />
-        <Typography>该部分得分: {calcHiddenSum()}</Typography>
+        <Typography>该部分得分: {calcHiddenSum().toFixed(1)}</Typography>
       </Box>
       <Box sx={{ display: "flex", justifyContent: "stretch", gap: 1 }}>
         {/* 隐藏作战 */}
@@ -423,7 +423,7 @@ function App() {
                         updateHiddenRecord(idx(), { ...item, perfect: v });
                       }} />
                     </TableCell>
-                    <TableCell align="right">{calcHiddenRecordScore(idx())}</TableCell>
+                    <TableCell align="right">{calcHiddenRecordScore(idx()).toFixed(1)}</TableCell>
                     <TableCell align="center">
                       <IconButton color="error" onClick={() => removeHiddenRecord(idx())}>
                         <Delete />
@@ -459,7 +459,7 @@ function App() {
           添加
         </Button>
         <Box sx={{ flexGrow: 1 }} />
-        <Typography>该部分得分: {calcBossSum()}</Typography>
+        <Typography>该部分得分: {calcBossSum().toFixed(1)}</Typography>
       </Box>
 
       {/* 领袖作战 */}
@@ -488,7 +488,7 @@ function App() {
                   </TableCell>
                   <TableCell></TableCell>
                   <TableCell></TableCell>
-                  <TableCell align="right">{calcBossRecordScore(idx())}</TableCell>
+                  <TableCell align="right">{calcBossRecordScore(idx()).toFixed(1)}</TableCell>
                   <TableCell align="center">
                     <IconButton color="error" onClick={() => removeBossRecord(idx())}>
                       <Delete />
@@ -735,7 +735,7 @@ function App() {
           <Box sx={{ display: "flex", flexDirection: "column", minWidth: 200, gap: 1 }}>
             <SumPart />
             <Card sx={{ display: "flex", flexDirection: "column", gap: 1, padding: 2 }}>
-              <Typography sx={{ fontSize: "1.5rem" }}>总计：{calcTotalSum()}</Typography>
+              <Typography sx={{ fontSize: "1.5rem" }}>总计：{calcTotalSum().toFixed(1)}</Typography>
               <Box sx={{ display: "flex", gap: 1 }}>
                 <Button variant="contained" onClick={() => { setStore({ ...defaultStoreValue }) }}>清零</Button>
                 <Button variant="outlined" onClick={async () => {
