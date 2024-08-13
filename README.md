@@ -1,7 +1,9 @@
-# Tauri + Solid + Typescript
+# 集成战略分数计算器
 
-This template should help get you started developing with Tauri, Solid and Typescript in Vite.
+> 用于 京云杯#2 赛事
 
-## Recommended IDE Setup
+Release 中可以下载各个平台（linux/mac/windows/android）的构建产物。
 
-- [VS Code](https://code.visualstudio.com/) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
+网页版：[https://azurice.github.io/isw-calculator](https://azurice.github.io/isw-calculator)。
+
+如果难以访问，可以使用国内 CDN 加速的站点：[https://www.azurice.com/isw-calculator](https://www.azurice.com/isw-calculator)
