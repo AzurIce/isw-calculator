@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.3](https://github.com/BJTUEventCameraSoftwareGroup/event-cam-software/compare/0.2.2..0.2.3) - 2024-08-19
+
+### <!-- 1 -->🕷️ Bug Fixes
+
+
+- Withdraw score - ([b0dad94](https://github.com/BJTUEventCameraSoftwareGroup/event-cam-software/commit/b0dad9468a4b1180fc42e7b47637725fd869b412))
+
 ## [0.2.2](https://github.com/BJTUEventCameraSoftwareGroup/event-cam-software/compare/0.2.1..0.2.2) - 2024-08-13
 
 ### <!-- 1 -->🕷️ Bug Fixes
