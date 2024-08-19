@@ -224,7 +224,7 @@ function App() {
 
   // 3) c) 每局游戏的源石锭余额减少总数超过40时，每额外减少1源石锭余额，额外扣除50分；
   const calcWithdrawScore = () => {
-    return store.withdrawCnt > 40 ? (40 - store.withdrawCnt) * -50 : 0;
+    return store.withdrawCnt > 40 ? (store.withdrawCnt - 40) * -50 : 0;
   }
 
   const calcScore = () => {
