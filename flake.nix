@@ -37,6 +37,7 @@
           ]
           ++
           (pkgs.lib.optionals pkgs.stdenv.isDarwin (with pkgs; [
+            libiconv-darwin
           ]) ++ (with pkgs.darwin.apple_sdk.frameworks; [
             SystemConfiguration
           #   IOKit
