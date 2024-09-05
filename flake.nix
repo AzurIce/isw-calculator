@@ -42,6 +42,7 @@
           #   IOKit
             Security
             CoreFoundation
+            WebKit
           #   AppKit
           ]))
           ;
