@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.0](https://github.com/BJTUEventCameraSoftwareGroup/event-cam-software/compare/0.2.3..0.3.0) - 2024-09-05
+
+### <!-- 0 -->🎈 Features
+
+
+- 正赛规则调整 - ([3c2f9d8](https://github.com/BJTUEventCameraSoftwareGroup/event-cam-software/commit/3c2f9d8a9ad9c019e63baaa287305ce326a42c8a))
+- 优化国王收藏品选择交互逻辑 - ([41f69de](https://github.com/BJTUEventCameraSoftwareGroup/event-cam-software/commit/41f69de4174dc8f06b92c3b70c2eef959de6c49e))
+
+### <!-- 7 -->⚙️ Miscellaneous Tasks
+
+
+- Added flake.nix - ([0c9a327](https://github.com/BJTUEventCameraSoftwareGroup/event-cam-software/commit/0c9a327886b40cd3bfc6598fd3c47a006cbbc6fc))
+- Update flake.nix - ([7fabd4b](https://github.com/BJTUEventCameraSoftwareGroup/event-cam-software/commit/7fabd4b261fd72fcccda7712e9d84d84ff862eb2))
+
+### WIP
+
+
+- Tauri capability stuff - ([3d409a3](https://github.com/BJTUEventCameraSoftwareGroup/event-cam-software/commit/3d409a3a0cc1df9c0adfde3460ee7ae6244c5ce3))
+
 ## [0.2.3](https://github.com/BJTUEventCameraSoftwareGroup/event-cam-software/compare/0.2.2..0.2.3) - 2024-08-19
 
 ### <!-- 1 -->🕷️ Bug Fixes
