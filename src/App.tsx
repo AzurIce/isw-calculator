@@ -543,12 +543,18 @@ function App() {
       </Box>
       <Button variant={store.kingOfTerra ? "contained" : "outlined"} color={store.kingOfTerra ? "error" : "secondary"} onClick={() => {
         setStore("kingOfTerra", v => !v)
+        setStore("kingsCollectibleRecords", (collectibles) => collectibles.map((item) => {
+          return { ...item, owned: store.kingOfTerra }
+        }));
       }}>
         泰拉之王
       </Button>
       <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
         <For each={store.kingsCollectibleRecords}>{(item) => <>
           <Button variant="outlined" color={item.owned ? "error" : "secondary"} onClick={() => {
+            if (item.owned) {
+              setStore("kingOfTerra", false)
+            }
             toggleKingsCollectible(item.collectible)
           }}>
             {item.collectible}
