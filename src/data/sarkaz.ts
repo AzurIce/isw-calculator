@@ -43,6 +43,7 @@ export enum EmergencyOperation {
   PassageLockdown = "通道封锁",
   DivineDesire = "神圣的渴求",
   SearchForConsensus = "谋求共识",
+  UnionOfWitchcraftAndArts = "巫咒同盟",
 }
 
 export type EmergencyOperationInfo = {
@@ -88,7 +89,11 @@ export const EmergencyOperationInfos: { [key: string]: EmergencyOperationInfo } 
   },
   [EmergencyOperation.PassageLockdown]: {
     level: Level.Fifth,
-    score: 40,
+    score: 30,
+  },
+  [EmergencyOperation.UnionOfWitchcraftAndArts]: {
+    level: Level.Fifth,
+    score: 30,
   },
   [EmergencyOperation.DivineDesire]: {
     level: Level.Sixth,

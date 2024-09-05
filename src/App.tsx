@@ -33,7 +33,7 @@ type Store = {
   score: number,
   bannedOperatorRecords: BannedOperatorRecord[],
   kingsCollectibleRecords: KingsCollectibleRecord[],
-
+  kingOfTerra: boolean,
 }
 
 const testStoreValue: Store = {
@@ -94,7 +94,8 @@ const testStoreValue: Store = {
       operation: BossOperation.CivitasSancta,
       chaos: true,
     }
-  ]
+  ],
+  kingOfTerra: false,
 };
 
 const defaultStoreValue: Store = {
@@ -113,9 +114,10 @@ const defaultStoreValue: Store = {
     collectible: collectible as KingsCollectible,
     owned: false
   })),
+  kingOfTerra: false,
   emergencyRecords: [],
   hiddenRecords: [],
-  bossRecords: []
+  bossRecords: [],
 };
 
 function App() {
@@ -184,14 +186,17 @@ function App() {
   // 3) e) 结算时，若持有超过1件“国王”藏品，从第二件藏品开始每持有一件藏品扣除20分；触
   //       发“诸王的冠冕”3层效果时，额外扣除40分；若集齐游戏内所有“国王”藏品，额外扣除
   //       20分；
+  // 正赛：更改为 结算时，若持有超过1件“国王”藏品，从第二件藏品开始每持有一件藏品扣除20分；在“失落财宝”中选择《泰拉之王》时，额外扣除40分；若集齐游戏内所有“国王”藏品，额外扣除
+  //       20分；
+  //      
   const calcKingsCollectibleSum = () => {
     const kingsCollectibleCnt = store.kingsCollectibleRecords.reduce((sum, record) => sum + (record.owned ? 1 : 0), 0);
-    const ownedCrown = store.kingsCollectibleRecords.find((record) => record.collectible == KingsCollectible.KingsCrown && record.owned);
+    // const ownedCrown = store.kingsCollectibleRecords.find((record) => record.collectible == KingsCollectible.KingsCrown && record.owned);
     let score = 0;
     if (kingsCollectibleCnt > 1) {
       score = (kingsCollectibleCnt - 1) * -20;
     }
-    if (kingsCollectibleCnt >= 3 && ownedCrown) {
+    if (store.kingOfTerra) {
       score -= 40;
     }
     if (kingsCollectibleCnt == 4) {
@@ -536,6 +541,11 @@ function App() {
         <Box sx={{ flexGrow: 1 }} />
         <Typography>该部分得分: {calcKingsCollectibleSum()}</Typography>
       </Box>
+      <Button variant={store.kingOfTerra ? "contained" : "outlined"} color={store.kingOfTerra ? "error" : "secondary"} onClick={() => {
+        setStore("kingOfTerra", v => !v)
+      }}>
+        泰拉之王
+      </Button>
       <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
         <For each={store.kingsCollectibleRecords}>{(item) => <>
           <Button variant="outlined" color={item.owned ? "error" : "secondary"} onClick={() => {
